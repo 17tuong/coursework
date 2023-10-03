@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 datawin = uic.loadUiType(r"C:\Users\chomp\Documents\VSC\QtDesigner\designs\data.ui")[0]
 
-class MainWindow(QMainWindow, datawin):
+class Ui_DataWindow(QMainWindow, datawin):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
         self.setupUi(self); 
@@ -17,7 +17,7 @@ class MainWindow(QMainWindow, datawin):
         self.figure, self.ax = plt.subplots()
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
-        self.ticker_symbol = "AAPL"
+        self.ticker_symbol = "GLD"
         self.fetch_data()
         self.plot_graph()
 
@@ -28,12 +28,10 @@ class MainWindow(QMainWindow, datawin):
     def plot_graph(self):
         x = np.arange(len(self.data))
         y = self.data['Close'].values
-
         x = x.reshape(-1, 1)
         model = LinearRegression()
         model.fit(x, y)
         y_pred = model.predict(x)
-
         self.ax.clear()
         self.ax.plot(self.data['Date'], y, label="Close Price")
         self.ax.plot(self.data['Date'], y_pred, label="Linear Regression", linestyle="--")
@@ -42,21 +40,18 @@ class MainWindow(QMainWindow, datawin):
         self.ax.set_ylabel("Price")
         self.figure.autofmt_xdate()
         self.canvas.draw()
-
         self.datatable.setRowCount(len(self.data))
         self.datatable.setColumnCount(len(self.data.columns))
         self.datatable.setHorizontalHeaderLabels(self.data.columns)
-
         for row in range(len(self.data)):
             for column in range(len(self.data.columns)):
                 item = QTableWidgetItem(str(self.data.iloc[row, column]))
                 self.datatable.setItem(row, column, item)
-
         header = self.datatable.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    mainWindow = MainWindow()
+    mainWindow = Ui_DataWindow()
     mainWindow.show()
     sys.exit(app.exec_())
